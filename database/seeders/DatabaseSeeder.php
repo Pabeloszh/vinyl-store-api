@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Database\Seeders\VinylSeeder;
+use Database\Seeders\GenreSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,6 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call([VinylSeeder::class]);
+        $this->call([VinylSeeder::class, GenreSeeder::class]);
+        
     }
 }
