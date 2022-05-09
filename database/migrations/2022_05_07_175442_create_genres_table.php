@@ -15,18 +15,21 @@ return new class extends Migration
     {
         Schema::create('genres', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->string('name');
+            $table->timestamps();
+        });
+        Schema::table('vinyls', function (Blueprint $table) {
+            $table->unsignedBigInteger('genre_id')->nullable();
+            $table->foreign('genre_id')->references('id')->on('genres');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
+        Schema::table('vinyls', function (Blueprint $table) {
+            $table->dropForeign('vinyls_genre_id_foreign');
+            $table->dropColumn('genre_id');
+        });
         Schema::dropIfExists('genres');
     }
 };
