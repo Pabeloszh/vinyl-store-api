@@ -4,39 +4,28 @@ namespace App\Http\Controllers;
 use App\Models\Vinyl;
 use Illuminate\Http\Request;
 
+
 class VinylController extends Controller
 {
     protected $stringParams = ['name', 'author'];
     protected $numberParams = ['price'];
+    protected $relationParams = [
+        ['genre', 'name'],
+    ];
 
-    protected $indexReturned = ['id', 'name', 'author', 'price', 'created_at'];
+    protected $indexReturned = ['id', 'name', 'author', 'price', 'genre_id'];
 
     public function index(Request $request)
     {
         $query = $request->query();
-        $queryParams = [];
 
-        // string params
-        foreach($this->stringParams as $string){
-            if(isset($query[$string])){
-                array_push($queryParams, [$string, 'ilike', '%'.$query[$string].'%']);
-            };
-        }
-
-        // number params
-        foreach($this->numberParams as $number){
-            if(isset($query[$number.'Lte'])){
-                array_push($queryParams, [$number, '<=', $query[$number.'Lte']]);
-            };
-            if(isset($query[$number.'Gte'])){
-                array_push($queryParams, [$number, '>=', $query[$number.'Gte']]);
-            };
-        }
-
-        // pagination limit
         $limit = isset($query['limit']) ? $query['limit'] : 12;
 
-        return Vinyl::where($queryParams)->paginate($limit, $this->indexReturned);
+        return Vinyl::with('genre:id,name')
+        ->filterByNumber($query, $this->numberParams)
+        ->filterByString($query, $this->stringParams)
+        ->filterByRelation($query, $this->relationParams)
+        ->paginate($limit, $this->indexReturned);
     }
 
     public function store(Request $request)
@@ -53,7 +42,7 @@ class VinylController extends Controller
 
     public function show($id)
     {
-        return Vinyl::find($id);
+        return Vinyl::with('genre:id,name')->find($id);
     }
 
     public function update(Request $request, $id)
